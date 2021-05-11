@@ -214,8 +214,5 @@ SRI_from_diaries <- function (diarydir = c(), alloutdir = c(), col.trans = 1, co
 
   # ---------------------------------------
 }
-# ----------------------------------------------------
-# SRI_from_diaries(diarydir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/diarydata",
-#                  alloutdir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/outputSRI",
-#                  overwr = TRUE)
+
 
