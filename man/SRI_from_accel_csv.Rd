@@ -27,13 +27,13 @@ SRI_from_accel_csv(
 
 \item{alloutdir}{General output directory}
 
-\item{dsdir}{Directory for down-sampled files}
+\item{dsdir}{Directory for down-sampled accelerometer files}
 
 \item{col.timestamp}{Column of raw .csv files containing timestamp}
 
-\item{col.accel}{Columns of raw .csv files containing x-y-z accelerometer data}
+\item{col.accel}{Columns of raw .csv files containing x-y-z accelerometer data e.g., c(1:3)}
 
-\item{outputdir}{Directory of GGIR output}
+\item{outputdir}{Directory for GGIR output}
 
 \item{rmc.col.acc}{Columns of accelerometer data in down-sampled files}
 
@@ -41,27 +41,28 @@ SRI_from_accel_csv(
 
 \item{rmc.nrow}{Number of accelerometer data rows}
 
-\item{use.naps}{Specify whether 'naps' are included in analysis}
+\item{use.naps}{Specify whether 'naps' are included in SRI calculation}
 
-\item{use.WASO}{Specify whether Wake After Sleep Onset (WASO) periods are included in analysis}
+\item{use.WASO}{Specify whether 'wake after sleep onset' (WASO) periods are included in SRI calculation}
 
-\item{use.miscal}{Specify whether to filter out nights of data likely miscalculated by GGIR}
+\item{use.miscal}{Specify whether to filter out nights of 'miscalculated' sleep onset/offset timing}
 
-\item{wr.SWV}{Specify whether Sleep-Wake Vectors (SWV) are  output to file}
+\item{wr.SWV}{Specify whether Sleep-Wake Vectors (SWV) are output to file}
 
 \item{wr.raster}{Specify whether sleep-wake raster plots are output to file}
 
 \item{...}{}
-
-\item{GGIRinstdir}{Directory of GGIR ver 2.0-0 files}
 }
 \value{
 
 }
 \description{
-A wrapper that allows for direct calculation of Sleep Regularity Index (SRI) scores from accelerometer data. Runs functions
-for down-sampling data, predicting sleep-wake timing (GGIR), accounting for broken sleep patterns,``
-and calculating SRI.
+A wrapper that allows for direct calculation of Sleep Regularity Index (SRI) scores from accelerometer data (.csv format).
+
+Runs three functions: (a) down-sampling data [ds_accel_csv], (b) predicting sleep-wake timing using GGIR [GGIR_from_csv],
+and (c) calculating SRI after accounting for broken sleep patterns [SRI_from_GGIR].
+
+Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
 }
 \examples{
 SRI_from_accel_csv(acceldir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106_output/ds_output", col.timestamp = 5, col.accel = c(1:3))

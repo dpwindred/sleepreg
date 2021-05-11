@@ -10,7 +10,6 @@
 # ---------------------------------------------------
 # Testing:
 # - Converted .csv files from Geneactivs
-#   - Current issue: .csv files are > 1Hz
 #   - It's possible to extract as 1hz using the geneactiv software
 
 # - [f] GGIR output from analysis of .bin Geneactiv files (GGIR v2.0-0)
@@ -18,8 +17,7 @@
 # ---------------------------------------------------
 # Additions / fixes:
 # - Need to consider timezones / give users an option to specify the timezone in which data was collected. They will give UNIX time,
-#   which is absolute relative to UTC, but their participants could be anywhere - specify timezone. This is really only important
-#   for the raster plot!!
+#   which is absolute relative to UTC, but participants could be anywhere - specify timezone. Only important for the raster plot.
 # - Add NAs to raster plots!
 # - Make newer versions of GGIR work on the .csv output
 
@@ -60,19 +58,21 @@
 # ---------------------------------
 # Down-sampling --------
 #' @title Down-Sample Accelerometer Files
-#' @description Down-samples .csv files to 1Hz, creating required input format and increasing speed.
+#' @description Down-samples .csv files to 1Hz, increasing speed and creating required input format for 'GGIR_from_csv' function.
+#'
+#' Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
 #'
 #' @param acceldir Directory containing raw .csv accelerometer files
 #' @param alloutdir General output directory
 #' @param dsdir Directory for down-sampled files
 #' @param col.timestamp Column of raw .csv files containing timestamp
-#' @param col.accel Columns of raw .csv files containing x-y-z accelerometer data
+#' @param col.accel Columns of raw .csv files containing x-y-z accelerometer data e.g., c(1:3)
 #'
 #' @return
 #' @export
 #'
 #' @examples
-#' ds_accel_csv(acceldir="C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106", col.timestamp = 1, col.accel = c(2,3,4))
+#' ds_accel_csv(acceldir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106", col.timestamp = 1, col.accel = c(2,3,4))
 #'
 ds_accel_csv <- function(acceldir = c(), alloutdir = c(), dsdir = c(), col.timestamp = c(), col.accel = c()){
   ### Need to add in error msg here for if columns of timestamp and accelerometer data aren't specified
@@ -124,7 +124,10 @@ ds_accel_csv <- function(acceldir = c(), alloutdir = c(), dsdir = c(), col.times
 # ---------------------------------
 # GGIR --------
 #' @title Apply GGIR to Down-Sampled Accelerometer Files
-#' @description Extracts GGIR output (sleep-wake predictions, sustained inactivity) across all files, specifies GGIR parameters.
+#' @description Specifies parameters and implements GGIR (Migueles et. al., 2019) across all .csv accelerometer files (frequency = 1Hz)
+#' in 'acceldir', extracting sleep-wake predictions and sustained inactivity bouts.
+#'
+#' Minimum required inputs: 'acceldir'
 #'
 #' @param dsdir Directory for down-sampled files
 #' @param alloutdir General output directory
@@ -318,12 +321,20 @@ GGIR_from_csv <- function(dsdir = c(), alloutdir = c(), outputdir = c(),
 # ---------------------------------
 # SRI --------
 #' @title Calculate Sleep Regularity Index (SRI) from GGIR Output
-#' @description
+#' @description Uses sleep windows and sustained inactivity bouts from GGIR output to calculate Sleep Regularity Index scores. Accounts for
+#' multiphasic and broken sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside
+#' GGIR-defined sleep windows. Uses sustained inactivity bouts to exclude days where sleep onset and offset times are likely
+#' miscalculated. Runs across all "output_xxx" directories within 'outputdir', accounting for both multi-file and single-file GGIR output
+#' structures.
 #'
-#' @param outputdir Directory of GGIR output - must be specified
-#' @param alloutdir General output directory - specify if you wish
-#' @param use.naps Specify whether 'naps' are included in analysis
-#' @param use.WASO Specify whether Wake After Sleep Onset (WASO) periods are included in analysis
+#' Additional outputs: sleep-wake raster plots, sleep variables, summary of miscalculated nights, sleep-wake vectors.
+#'
+#' Minimum required inputs: 'outputdir'
+#'
+#' @param outputdir Directory of GGIR output
+#' @param alloutdir General output directory
+#' @param use.naps Specify whether 'naps' are included in SRI calculation
+#' @param use.WASO Specify whether 'wake after sleep onset' (WASO) periods are included in SRI calculation
 #' @param use.miscal Specify whether to filter out nights of data likely miscalculated by GGIR
 #' @param wr.SWV Specify whether Sleep-Wake Vectors (SWV) are  output to file
 #' @param wr.raster Specify whether sleep-wake raster plots are output to file
@@ -333,8 +344,6 @@ GGIR_from_csv <- function(dsdir = c(), alloutdir = c(), outputdir = c(),
 #'
 #' @examples
 #' SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106_output/GGIR_output")
-#' SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/Biobank/from_alex/sampleresults5")
-#' SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/SRI_Study/Geneactiv_Data/sample/Geneactiv_five_bin_results_AusTz_15window")
 SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
                           use.naps = TRUE, use.WASO = TRUE, use.miscal = TRUE, wr.SWV = TRUE, wr.raster = TRUE){
   # ----------------------------------------------------
@@ -956,24 +965,26 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
 # ---------------------------------
 # Wrapper -------
 #' @title Calculate Sleep Regularity Index from .csv Accelerometer Data
-#' @description A wrapper that allows for direct calculation of Sleep Regularity Index (SRI) scores from accelerometer data. Runs functions
-#' for down-sampling data, predicting sleep-wake timing (GGIR), accounting for broken sleep patterns,``
-#' and calculating SRI.
+#' @description A wrapper that allows for direct calculation of Sleep Regularity Index (SRI) scores from accelerometer data (.csv format).
+#'
+#' Runs three functions: (a) down-sampling data [ds_accel_csv], (b) predicting sleep-wake timing using GGIR [GGIR_from_csv],
+#' and (c) calculating SRI after accounting for broken sleep patterns [SRI_from_GGIR].
+#'
+#' Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
 #'
 #' @param acceldir Directory containing raw .csv accelerometer files
 #' @param alloutdir General output directory
-#' @param dsdir Directory for down-sampled files
+#' @param dsdir Directory for down-sampled accelerometer files
 #' @param col.timestamp Column of raw .csv files containing timestamp
-#' @param col.accel Columns of raw .csv files containing x-y-z accelerometer data
-#' @param outputdir Directory of GGIR output
-#' @param GGIRinstdir Directory of GGIR ver 2.0-0 files
+#' @param col.accel Columns of raw .csv files containing x-y-z accelerometer data e.g., c(1:3)
+#' @param outputdir Directory for GGIR output
 #' @param rmc.col.acc Columns of accelerometer data in down-sampled files
 #' @param rmc.col.time Column of timestamps in down-sampled files
 #' @param rmc.nrow Number of accelerometer data rows
-#' @param use.naps Specify whether 'naps' are included in analysis
-#' @param use.WASO Specify whether Wake After Sleep Onset (WASO) periods are included in analysis
-#' @param use.miscal Specify whether to filter out nights of data likely miscalculated by GGIR
-#' @param wr.SWV Specify whether Sleep-Wake Vectors (SWV) are  output to file
+#' @param use.naps Specify whether 'naps' are included in SRI calculation
+#' @param use.WASO Specify whether 'wake after sleep onset' (WASO) periods are included in SRI calculation
+#' @param use.miscal Specify whether to filter out nights of 'miscalculated' sleep onset/offset timing
+#' @param wr.SWV Specify whether Sleep-Wake Vectors (SWV) are output to file
 #' @param wr.raster Specify whether sleep-wake raster plots are output to file
 #' @param ...
 #'

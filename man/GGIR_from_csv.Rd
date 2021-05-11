@@ -29,7 +29,10 @@ GGIR_from_csv(
 
 }
 \description{
-Extracts GGIR output (sleep-wake predictions, sustained inactivity) across all files, specifies GGIR parameters.
+Specifies parameters and implements GGIR (Migueles et. al., 2019) across all .csv accelerometer files (frequency = 1Hz)
+in 'acceldir', extracting sleep-wake predictions and sustained inactivity bouts.
+
+Minimum required inputs: 'acceldir'
 }
 \examples{
 GGIR_from_csv(dsdir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106_output/ds_output")

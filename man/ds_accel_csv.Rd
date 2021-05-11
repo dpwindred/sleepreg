@@ -21,15 +21,17 @@ ds_accel_csv(
 
 \item{col.timestamp}{Column of raw .csv files containing timestamp}
 
-\item{col.accel}{Columns of raw .csv files containing x-y-z accelerometer data}
+\item{col.accel}{Columns of raw .csv files containing x-y-z accelerometer data e.g., c(1:3)}
 }
 \value{
 
 }
 \description{
-Down-samples .csv files to 1Hz, creating required input format and increasing speed.
+Down-samples .csv files to 1Hz, increasing speed and creating required input format for 'GGIR_from_csv' function.
+
+Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
 }
 \examples{
-ds_accel_csv(acceldir="C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106", col.timestamp = 1, col.accel = c(2,3,4))
+ds_accel_csv(acceldir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106", col.timestamp = 1, col.accel = c(2,3,4))
 
 }

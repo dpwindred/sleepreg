@@ -15,13 +15,13 @@ SRI_from_GGIR(
 )
 }
 \arguments{
-\item{outputdir}{Directory of GGIR output - must be specified}
+\item{outputdir}{Directory of GGIR output}
 
-\item{alloutdir}{General output directory - specify if you wish}
+\item{alloutdir}{General output directory}
 
-\item{use.naps}{Specify whether 'naps' are included in analysis}
+\item{use.naps}{Specify whether 'naps' are included in SRI calculation}
 
-\item{use.WASO}{Specify whether Wake After Sleep Onset (WASO) periods are included in analysis}
+\item{use.WASO}{Specify whether 'wake after sleep onset' (WASO) periods are included in SRI calculation}
 
 \item{use.miscal}{Specify whether to filter out nights of data likely miscalculated by GGIR}
 
@@ -33,10 +33,16 @@ SRI_from_GGIR(
 
 }
 \description{
+Uses sleep windows and sustained inactivity bouts from GGIR output to calculate Sleep Regularity Index scores. Accounts for
+multiphasic and broken sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside
+GGIR-defined sleep windows. Uses sustained inactivity bouts to exclude days where sleep onset and offset times are likely
+miscalculated. Runs across all "output_xxx" directories within 'outputdir', accounting for both multi-file and single-file GGIR output
+structures.
 
+Additional outputs: sleep-wake raster plots, sleep variables, summary of miscalculated nights, sleep-wake vectors.
+
+Minimum required inputs: 'outputdir'
 }
 \examples{
 SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106_output/GGIR_output")
-SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/Biobank/from_alex/sampleresults5")
-SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/SRI_Study/Geneactiv_Data/sample/Geneactiv_five_bin_results_AusTz_15window")
 }
