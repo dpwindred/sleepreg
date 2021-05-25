@@ -925,7 +925,7 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
           w <- 200 # Width in mm
           h <- 7/12*w*(1+5/42*(mdays-7)) # Height (depends on number of days of data)
 
-          ggsave(paste0(rasdir,"/",ppts[p],".tiff"), device='tiff',
+          ggplot2::ggsave(paste0(rasdir,"/",ppts[p],".tiff"), device='tiff',
                  plot=rst, width=w, height=h, units="mm", dpi=1400,
                  limitsize = FALSE)
           print(paste0("Raster plot saved: ", ppts[p]))
