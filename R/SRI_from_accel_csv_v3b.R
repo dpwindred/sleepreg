@@ -913,7 +913,7 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
           abb_x <- sq
           abb_y <- rev(seq(from=max(rdf$day),to=1,by=-1))
 
-          rst <- ggplot2::ggplot(rdf,aes(x=tUTCh, y=day)) +
+          rst <- ggplot(rdf,aes(x=tUTCh, y=day)) +
             geom_point(size=6,shape=15) +
             scale_y_continuous(breaks=seq(from=max(rdf$day),to=1,by=-1),labels=abb_y) +
             scale_x_continuous(breaks=seq(from=oh,to=(oh+24),by=4),limits=c(oh,(oh+24)),labels=abb_x) +
@@ -925,7 +925,7 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
           w <- 200 # Width in mm
           h <- 7/12*w*(1+5/42*(mdays-7)) # Height (depends on number of days of data)
 
-          ggplot2::ggsave(paste0(rasdir,"/",ppts[p],".tiff"), device='tiff',
+          ggsave(paste0(rasdir,"/",ppts[p],".tiff"), device='tiff',
                  plot=rst, width=w, height=h, units="mm", dpi=1400,
                  limitsize = FALSE)
           print(paste0("Raster plot saved: ", ppts[p]))
