@@ -166,27 +166,15 @@ GGIR_from_csv <- function(dsdir = c(), alloutdir = c(), outputdir = c(),
   } # If no output dir, create one
 
   # ----------------------------------------------------
-  # # Install GGIR, require ver. 2.0-0, check for and remove any other version --------
-  # if(require(GGIR)){
-  #   if(sessionInfo()$other$GGIR$Version != "2.0-0" & !is.null(sessionInfo()$other$GGIR$Version)){
-  #     uninstall.packages("GGIR") # Remove non-2.0-0 ver. of the pkg
-  #     install.packages(GGIRinstdir, repos = NULL, type="source") # Install GGIR version from file
-  #   }
-  # } else {
-  #   install.packages(GGIRinstdir, repos = NULL, type="source") # Install GGIR version from file
-  # }
-  # library(GGIR)
-  # ## Might need to restart the R session from within the loop to make the pkg work??
-
-  # ----------------------------------------------------
   # Run GGIR across downsampled files --------
   file_list <- list.files(dsdir, pattern = "*.csv", full.names = TRUE) # List of downsampled files
+  study_list <- list.files(dsdir, pattern = "*.csv", full.names = FALSE)
   for (k in 1:length(file_list)){
     tryCatch({ # Start of code to catch any error in a loop iteration, write error to SRI file, and skip to next loop iteration
       # --------------------
       # [f] Define 'studyname' -------
-      studyname <- sub(paste(dsdir,"/",sep=""),"",file_list[k])  # Names of output folders = filename - directory
-
+      # studyname <- sub(paste(dsdir,"/",sep=""),"",file_list[k])  # Names of output folders = filename - directory
+      studyname <- study_list[k]
       # --------------------
       # [nf] Check if outputdir already exists -------
       checkdir <- paste(outputdir,"/output_",studyname,sep="")
@@ -409,6 +397,7 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
   if(length(dir_list) == 0){
     stop("Error: No GGIR output directories available")
   }
+  study_list <- list.dirs(outputdir, recursive=FALSE, full.names = FALSE)
 
   # -----------------------------------------
   na_vec <- rep(NA,(length(SRIheader)-1)) # Define vector to fill row for error cases
@@ -431,8 +420,9 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
     #    For parallel GGIR, will be multiple
     tryCatch({ # Start of code to catch any error in a loop iteration, write error to SRI file, and skip to next loop iteration
 
-      studyname <- sub(paste(outputdir,"/output_",sep=""),"",dir_list[k])  # Names of output folders = filename - directory
-      outputfolder <- paste(outputdir,studyname,sep="/output_") # Output folder directory
+      studyname <- sub("output_","",study_list[k])
+      # outputfolder <- paste(outputdir,studyname,sep="/output_") # Output folder directory
+      outputfolder <- dir_list[k] # Output folder directory
       nightsumloc <- paste(outputfolder,"/results/QC/part4_nightsummary_sleep_full.csv",sep="") # Nightsummary location
       nightsummary.ppts <- read.csv(nightsumloc, header = TRUE)[,c(1)] # Read ppts in nightsummary
       ppts <- unique(nightsummary.ppts) # List of participants within this GGIR output folder
@@ -1025,32 +1015,6 @@ SRI_from_accel_csv <- function(acceldir = c(),
 
   dsdir <- paste0(alloutdir, "/ds_output") # Directory for down-sampled files
   outputdir <- paste0(alloutdir, "/GGIR_output") # Dir of GGIR output folders
-
-  # quantdir <- "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/quantiles_1000.csv" # Location of SRI quantile data
-  # GGIRinstdir <- "C:/Users/dan_t/Documents/R/Biobank/GGIR_Version_Testing/Versions/GGIR_2.0-0.tar.gz" # Location of GGIR install files
-
-
-  # # Check for and load/install required packages (except GGIR) # --------
-  # if(!require(readr)){
-  #   install.packages("readr")
-  # }
-  # library(readr) # Or maybe we need to make this data.table / fread??
-  #
-  # if(!require(data.table)){
-  #   install.packages("data.table")
-  # }
-  # library(data.table)
-  #
-  # if(!require(installr)){
-  #   install.packages("installr")
-  # }
-  # library(installr)
-  #
-  # if(!require(ggplot2)){
-  #   install.packages("ggplot2")
-  # }
-  # library(ggplot2)
-
 
   # ---------------------------------
   # Run Down-sampling --------
