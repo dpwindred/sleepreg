@@ -33,5 +33,6 @@ Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
 }
 \examples{
 ds_accel_csv(acceldir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106", col.timestamp = 1, col.accel = c(2,3,4))
+ds_accel_csv(acceldir = "~/R/SRI_Study/Geneactiv_Data/reducedData", col.timestamp = 1, col.accel = c(2,3,4))
 
 }

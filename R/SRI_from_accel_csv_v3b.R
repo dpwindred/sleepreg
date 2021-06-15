@@ -21,7 +21,7 @@
 # - Add NAs to raster plots!
 # - Make newer versions of GGIR work on the .csv output
 
-# ---------------------------------------------------
+# ------------------------------------------
 # Function structure --------
 # - Overall wrapper: SRI_from_accel_csv
 #   - Runs: ds_accel_csv (downsamples files)
@@ -73,8 +73,13 @@
 #'
 #' @examples
 #' ds_accel_csv(acceldir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106", col.timestamp = 1, col.accel = c(2,3,4))
+#' ds_accel_csv(acceldir = "~/R/SRI_Study/Geneactiv_Data/reducedData", col.timestamp = 1, col.accel = c(2,3,4))
 #'
-ds_accel_csv <- function(acceldir = c(), alloutdir = c(), dsdir = c(), col.timestamp = c(), col.accel = c()){
+ds_accel_csv <- function(acceldir = c(),
+                         alloutdir = c(),
+                         dsdir = c(),
+                         col.timestamp = c(),
+                         col.accel = c()){
   ### Need to add in error msg here for if columns of timestamp and accelerometer data aren't specified
   # ----------------------------------------------------
   # Define non-def variables & check for / create dir --------
@@ -103,8 +108,9 @@ ds_accel_csv <- function(acceldir = c(), alloutdir = c(), dsdir = c(), col.times
   # ----------------------------------------------------
   # Down-sample across file list --------
   fl <- list.files(acceldir) # List files in acceldir
+  fl2 <- gsub("_","-",fl); fl2 <- gsub(" ","-",fl2) # Remove underscores
   for (i in 1:length(fl)){ # Loop over files
-    wrdir <- paste(dsdir,fl[i],sep="/")
+    wrdir <- paste(dsdir,fl2[i],sep="/")
     if (!file.exists(wrdir)){ # If down-sampled file doesn't already exist
       apptr <- as.data.frame(data.table::fread(paste(acceldir,fl[i],sep="/"))) # Read ppt data
       ts <- apptr[,col.timestamp] # Timestamps
@@ -141,8 +147,11 @@ ds_accel_csv <- function(acceldir = c(), alloutdir = c(), dsdir = c(), col.times
 #'
 #' @examples
 #'GGIR_from_csv(dsdir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106_output/ds_output")
-GGIR_from_csv <- function(dsdir = c(), alloutdir = c(), outputdir = c(),
-                          rmc.col.acc = c(2:4), rmc.col.time = 1){
+GGIR_from_csv <- function(dsdir = c(),
+                          alloutdir = c(),
+                          outputdir = c(),
+                          rmc.col.acc = c(2:4),
+                          rmc.col.time = 1){
   # ----------------------------------------------------
   # Define undefined variables & check for / create dirs --------
   if (length(dsdir) == 0){
@@ -332,8 +341,13 @@ GGIR_from_csv <- function(dsdir = c(), alloutdir = c(), outputdir = c(),
 #'
 #' @examples
 #' SRI_from_GGIR(outputdir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/106_output/GGIR_output")
-SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
-                          use.naps = TRUE, use.WASO = TRUE, use.miscal = TRUE, wr.SWV = TRUE, wr.raster = TRUE){
+SRI_from_GGIR <- function(outputdir = c(),
+                          alloutdir = c(),
+                          use.naps = TRUE,
+                          use.WASO = TRUE,
+                          use.miscal = TRUE,
+                          wr.SWV = TRUE,
+                          wr.raster = TRUE){
   # ----------------------------------------------------
   # Define undefined variables & check for / create dirs --------
   if (length(outputdir) == 0){
@@ -399,11 +413,12 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
   }
   study_list <- list.dirs(outputdir, recursive=FALSE, full.names = FALSE)
 
-  # -----------------------------------------
-  na_vec <- rep(NA,(length(SRIheader)-1)) # Define vector to fill row for error cases
+  # -----------
+  # Define vector to fill row for error cases ----------
+  na_vec <- rep(NA,(length(SRIheader)-1))
 
   # -----------------------------------------
-  # Nap, WASO and miscal parameters -------
+  # Parameters -------
   ## Eventually add these to the list of function input params, but need to place restrictions on range
   WASOmin <- 30
   napmin <- 30
@@ -412,9 +427,10 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
   misclwindvec <- c(1.5) # windows to check (in hours), applied for all four pre-/post- onset/offset windows. Outputs SRI scores for last choice only.
   misclperc_outsl <- 0.85
   misclperc_insl <- 0.2
+  minSRIdays <- 4 # Minimum number of days of overlapping data to calculate valid SRI scores
 
   # ----------------------------------------------------
-  # Loop over files, extracting SWVs and SRI --------
+  # Loop over files, extracting SWVs and SRI -----------
   for (k in 1:length(dir_list)){
     # a) Assess how many unique participants are contained within this iteration of dir_list. For non-parallel GGIR, will only be one.
     #    For parallel GGIR, will be multiple
@@ -460,7 +476,10 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
         # nightsumloc <- paste(outputfolder,"/results/QC/part4_nightsummary_sleep_full.csv",sep="") # Define nightsummary location
         # nightsummary <- read.csv(nightsumloc, header = TRUE)[,c(2,3,4,26)] # Read night summary data
         wakeonly_vector <- replicate((nrow(nightsummary)+1)*24*60,0) # Define an empty wake-only vector (all zeros)
-        ### Length needs to depend upon length of the file, not specified as just '8'
+
+        #### Looks like this needs to be updated to "replicate((max(nightsummary$night) + 1)*24*60,0)"
+        ####   to account for cases where the number of rows of data != maximum number of days.
+        #### Maybe this is accounted for already in the bugfix below??? Not sure!!
 
         # -> [f] Define SWV based on GGIR sleep times only ---------
         nightsummary$onsetmin <- round(nightsummary$sleeponset*60)+(nightsummary$night-1)*24*60 # Convert to min, make continuous
@@ -565,7 +584,7 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
         # -----------------------------------------------------------
         # Sleep variables
         # --------------------
-        # -> Extract sleep variables (nightsummary, custom variables (TST_custom,SE_GGIR,SE_Custom,WASO_GGIR,WASO_Custom,naps)) ---------
+        # -> Extract sleep vars (nightsummary,TST_custom,SE_GGIR,SE_Custom,WASO_GGIR,WASO_Custom,naps)) ---------
         # nightsummary2 <- read.csv(nightsumloc, header = TRUE)[,c(2,3,4,5,7,8,9,14,26)] # Read night summary data
         nightsummary2 <- nightsummary2[nightsummary2$night %in% nightsummary$night,] # Exclude all nights not in 'nightsummary'
 
@@ -690,13 +709,13 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
         write.table(sleepvardata, sleepvarfile, sep = ",", col.names = !file.exists(sleepvarfile), append = TRUE, row.names=FALSE) # Write to sleep variable file
 
         # --------------------
-        # -> [f] Don't calculate SRI for this loop if < 5 nights data -----------
-        if (nrow(nightsummary) <= 4){ # Don't calculate SRI for this loop if <= 4 nights sleep data
-          error_vec <- c(ppts[p],na_vec)
-          write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
-                      append = TRUE, row.names=FALSE) # Write Error to SRI.csv
-          next
-        }
+        # # -> [f] Don't calculate SRI for this loop if < 5 nights data -----------
+        # if (nrow(nightsummary) <= 4){ # Don't calculate SRI for this loop if <= 4 nights sleep data
+        #   error_vec <- c(ppts[p],na_vec)
+        #   write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
+        #               append = TRUE, row.names=FALSE) # Write Error to SRI.csv
+        #   next
+        # }
 
         # --------------------
         # -> [f] Call missing nights 'NA' in SWVs ---------
@@ -718,37 +737,38 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
         onoffvector_GGIRWASOnapwind_red <- onoffvector_GGIRWASOnapwind[721:(length(onoffvector_GGIRWASOnapwind)-720)]
 
         # Calculate SRI using onset and offset times only ---------
-        swv1_1 <- onoffvector_cons_red[1:(length(onoffvector_cons_red)-(24*60) )] # Remove the first 12h, and the last 36h
-        swv2_1 <- onoffvector_cons_red[((24*60)+1):(length(onoffvector_cons_red))] # Remove the first 36h, and the last 12h
+        swv1_1 <- onoffvector_cons_red[1:(length(onoffvector_cons_red)-(24*60) )]
+        swv2_1 <- onoffvector_cons_red[((24*60)+1):(length(onoffvector_cons_red))]
         SRI_onoff <- -100 + 200*(1-mean(abs(swv2_1-swv1_1),na.rm=TRUE)) # Calculate SRI from the two comparison vectors
 
         # Calculate SRI using onset, offset, and SIB gaps >= WASOmin within onset/offset periods ---------
-        swv1_2 <- onoffvector_sibs_red[1:( length(onoffvector_sibs_red)-(24*60) )] # Remove the first 12h, and the last 36h
-        swv2_2 <- onoffvector_sibs_red[((24*60)+1):(length(onoffvector_sibs_red))] # Remove the first 36h, and the last 12h
+        swv1_2 <- onoffvector_sibs_red[1:( length(onoffvector_sibs_red)-(24*60) )]
+        swv2_2 <- onoffvector_sibs_red[((24*60)+1):(length(onoffvector_sibs_red))]
         SRI_onoffWASO <- -100 + 200*(1-mean(abs(swv2_2-swv1_2),na.rm=TRUE)) # Calculate SRI from the two comparison vectors
 
         # Calculate SRI using onset, offset + nap window ---------
-        swv1_6 <- onoffvector_GGIRnapwind_red[1:(length(onoffvector_GGIRnapwind_red)-(24*60))] # Remove the first 24h
-        swv2_6 <- onoffvector_GGIRnapwind_red[((24*60)+1):length(onoffvector_GGIRnapwind_red)] # Remove the last 24h
+        swv1_6 <- onoffvector_GGIRnapwind_red[1:(length(onoffvector_GGIRnapwind_red)-(24*60))]
+        swv2_6 <- onoffvector_GGIRnapwind_red[((24*60)+1):length(onoffvector_GGIRnapwind_red)]
         SRI_onoffnap_wind <- -100 + 200*(1-mean(abs(swv2_6-swv1_6),na.rm=TRUE)) # Calculate SRI from the two comparison vectors
 
         # Calculate SRI using onset, offset + WASO + nap window ---------
-        swv1_7 <- onoffvector_GGIRWASOnapwind_red[1:(length(onoffvector_GGIRWASOnapwind_red)-(24*60))] # Remove the first 24h
-        swv2_7 <- onoffvector_GGIRWASOnapwind_red[((24*60)+1):length(onoffvector_GGIRWASOnapwind_red)] # Remove the last 24h
+        swv1_7 <- onoffvector_GGIRWASOnapwind_red[1:(length(onoffvector_GGIRWASOnapwind_red)-(24*60))]
+        swv2_7 <- onoffvector_GGIRWASOnapwind_red[((24*60)+1):length(onoffvector_GGIRWASOnapwind_red)]
         SRI_onoffWASOnap_wind <- -100 + 200*(1-mean(abs(swv2_7-swv1_7),na.rm=TRUE)) # Calculate SRI from the two comparison vectors
 
-        # --------------------
-        # -> [f] Number of days used to calculate SRI ----------
-        if (length(missingnights) > 0){
-          SRIdays <- nrow(nightsummary) - missingnights
-        } else {
-          SRIdays <- nrow(nightsummary)
-        }
+        # # --------------------
+        # # -> [f] Number of days used to calculate SRI ----------
+        # ### This also needs to be based on the SWVs, and applicable to each SRI type
+        #
+        # if (length(missingnights) > 0){
+        #   SRIdays <- nrow(nightsummary) - missingnights
+        # } else {
+        #   SRIdays <- nrow(nightsummary)
+        # }
 
         # --------------------
         # -> [f] Re-calculate SRI removing miscalculated onset/offset nights --------
-        misclnightscount <- length(misclnights)
-        misclSRIdays <- SRIdays - misclnightscount
+        misclnightscount <- length(misclnights) # Number of nights of miscalculated data
 
         onoffvector_cons_miscl <- onoffvector_cons_red
         onoffvector_sibs_miscl <- onoffvector_sibs_red
@@ -788,28 +808,42 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
           misclSRI_onoffnap_wind <- NA
           misclSRI_onoffWASOnap_wind <- NA
         }
+        # --------------------
+        # -> Check SRIdays for each SRI calculation, find those w/ <= 4 days overlapping data, re-label as NA ---------
+        swv1.li <- list(swv1_1, swv1_2, swv1_6, swv1_7, swv1_8, swv1_9, swv1_10, swv1_11) # List all SWVs used for SRI calc
+        swv2.li <- list(swv2_1, swv2_2, swv2_6, swv2_7, swv2_8, swv2_9, swv2_10, swv2_11)
+
+        SRIdays.li <- list()
+        for (i in 1:length(swv1.li)) {
+          SRIdays.li[[i]] <- sum(!is.na(swv1.li[[i]]*swv2.li[[i]]))/24/60
+        }
 
         # --------------------
-        # -> Choose required SRI score ----------
+        # -> Choose required SRI score and 'SRIdays' ----------
         SRIvec <- c(SRI_onoff,SRI_onoffWASO,SRI_onoffnap_wind,SRI_onoffWASOnap_wind,
                     misclSRI_onoff,misclSRI_onoffWASO,misclSRI_onoffnap_wind,misclSRI_onoffWASOnap_wind)
+
+        SRIvec[SRIdays.li < minSRIdays] <- NA # Call all SRI values with fewer than 4 days NA
+
         t.nap <- c(F,F,T,T,F,F,T,T)
         if (use.naps == FALSE){
           t.nap <- !t.nap
         }
         t.WASO <- c(F,T,F,T,F,T,F,T)
+
         if (use.WASO == FALSE){
           t.WASO <- !t.WASO
         }
+
         t.miscal <- c(F,F,F,F,T,T,T,T)
         if (use.miscal == FALSE){
           t.miscal <- !t.miscal
-        } else {
-          SRIdays <- misclSRIdays
         }
         t.SRI <- t.nap*t.WASO*t.miscal
         t.SRI <- as.logical(t.SRI)
         SRI <- SRIvec[t.SRI]
+        SRIdays <- SRIdays.li[[which(t.SRI)]]
+
 
         # --------------------
         # -> [f] Calculate SWVs for each SRI version ---------
@@ -862,29 +896,43 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
           }
         }
 
+
         # --------------------
         # -> Read in percentile, compare w/ SRI --------
-        # quan <- read.csv(quantdir) # Read in quantile data
         SRI_pctl <- quan$X[which(abs(quan$qu - SRI) == min(abs(quan$qu - SRI)))]
         if (is.na(SRI)){
           SRI_pctl <- NA
         }
 
         # --------------------
-        # -> Plot /save raster -----
-        if (wr.raster == TRUE){
+        # -> Plot / save raster -----
+        if (wr.raster == TRUE) {
           mdays <- ceiling((range(s.orcatdf$t)[2] - range(s.orcatdf$t)[1])/60/60/24) # Max days of data this ppt will have
           s.orcatdf$tmin <- round(s.orcatdf$t/60) # Round t to nearest minute
 
-          onind <- which(s.orcatdf$trans == 1) # Index all sleep onset times
+          # onind <- which(s.orcatdf$trans == 1) # Index all sleep onset times
+
+          onind <- which(s.orcatdf$trans == 1 | is.na(s.orcatdf$trans)) # Index all sleep onset times
+
+          if (onind[length(onind)] == nrow(s.orcatdf)){ # If index is the last, remove it
+            onind <- onind[-length(onind)]
+          }
+
           slt <- vector() # Define empty vector
+          grp <- vector()
           for (i in 1:length(onind)){ # Extract all times (minute intervals) of sleep
-            slt <- c(slt,s.orcatdf$tmin[onind[i]]:s.orcatdf$tmin[(onind[i]+1)])
+            wrt <- s.orcatdf$tmin[onind[i]]:s.orcatdf$tmin[(onind[i]+1)] # Times to write to vector
+            slt <- c(slt, wrt) # Vector of sleep times updated each loop
+            if (s.orcatdf$trans[onind[i]] == 1 & !is.na(s.orcatdf$trans[onind[i]])){
+              grp <- c(grp, rep("Sleep", length(wrt))) # Vector of sleep/NA grp updated each loop
+            } else {
+              grp <- c(grp, rep("NA", length(wrt)))
+            }
           }
 
           sttso <- s.orcatdf$tmin[2] - s.orcatdf$tmin[1] # Time difference between recording start and first sleep onset
 
-          rdf <- data.frame(t = slt, tabs = (slt - slt[1] + sttso), day = mdays, tras = (slt - slt[1] + sttso))
+          rdf <- data.frame(grp = grp, t = slt, tabs = (slt - slt[1] + sttso), day = mdays, tras = (slt - slt[1] + sttso))
           cuts <- seq(from=1440,by=1440,length.out=(mdays-1))
           for (i in 1:length(cuts)){
             rdf$day[rdf$tabs >= cuts[i]] <- rdf$day[rdf$tabs >= cuts[i]] - 1
@@ -903,14 +951,27 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
           abb_x <- sq
           abb_y <- rev(seq(from=max(rdf$day),to=1,by=-1))
 
-          rst <- ggplot(rdf,aes(x=tUTCh, y=day)) +
-            geom_point(size=6,shape=15) +
+          rdf$grp <- factor(rdf$grp, levels = c("Sleep", "NA"))
+
+
+          #### To add NAs, need to include another column - write all times where NA exists, write all other times = NA
+          ####  and write NA in all the corresponding tUTCh rows
+          #### Make NAs appear in some nice red colour.
+
+          # https://www.prepressure.com/fonts/basics/character-names#verticalline
+
+          rst <- ggplot(rdf,aes(x=tUTCh, y=day, color = grp)) +
+            geom_point(size=6, shape="\u007C") +
             scale_y_continuous(breaks=seq(from=max(rdf$day),to=1,by=-1),labels=abb_y) +
             scale_x_continuous(breaks=seq(from=oh,to=(oh+24),by=4),limits=c(oh,(oh+24)),labels=abb_x) +
+            scale_color_manual(values=c("#000000", "#FFABAB")) +
             xlab("Time (UTC, h)") +
             ylab("Day") +
             theme_classic() +
-            theme(text = element_text(size = 18), axis.text = element_text(size = 16)) # Change axis height
+            theme(text = element_text(size = 18),
+                  axis.text = element_text(size = 16),
+                  legend.title = element_blank()) +
+            guides(color = guide_legend(override.aes = list(shape = 15)))
 
           w <- 200 # Width in mm
           h <- 7/12*w*(1+5/42*(mdays-7)) # Height (depends on number of days of data)
@@ -950,7 +1011,7 @@ SRI_from_GGIR <- function(outputdir = c(), alloutdir = c(),
 
   } # for k close
   # ----------------------------------------------------
-} # Function close
+}
 
 # ---------------------------------
 # Wrapper -------
