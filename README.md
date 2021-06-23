@@ -6,7 +6,7 @@ This package has been designed for three main use cases:
 - Option C: Calculate SRI scores from binary sleep-wake data
 
 Package instructions for use cases:
-![Alt text](https://github.com/dpwindred/sleepreg/blob/master/example_flowchart.png)
+![Alt text](https://github.com/dpwindred/sleepreg/blob/master/example_flowchart2.png)
 
 
 
