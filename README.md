@@ -40,6 +40,58 @@ Package instructions for each use case:
 ![Alt text](https://github.com/dpwindred/sleepreg/blob/master/example_flowchart_2.jpg)
 
 
+### Functions
+
+
+- wrapper first
+- other main functions 
+- additional functions (i.e., user won't care about them) 
+
+```
+ds_accel_csv(acceldir = c(), 
+             alloutdir = c(), 
+             dsdir = c(), 
+             col.timestamp = c(), 
+             col.accel = c())
+```
+
+```
+GGIR_from_csv(dsdir = c(),
+              alloutdir = c(),
+              outputdir = c(),
+              rmc.col.acc = c(2:4),
+              rmc.col.time = 1)
+```
+
+```
+SRI_from_GGIR(outputdir = c(),
+              nwdir = c(),
+              alloutdir = c(),
+              use.naps = TRUE,
+              use.WASO = TRUE,
+              use.miscal = TRUE,
+              use.GGIRnonwear = TRUE,
+              use.customnonwear = TRUE,
+              wr.SWV = TRUE,
+              wr.raster = TRUE)
+```
+
+
+
+```
+nonWearDetectDs(dsdir=c(),
+                col.timestamp = c(),
+                col.accel = c(),
+                nwdir=c(),
+                sdThres = 0.12753,
+                rngThres = 0.4905)
+```
+
+```
+rollingWindowInd(t=c(),
+                 window=c(),
+                 step=c())
+```
 
 
 Our package relies upon GGIR (). We acknowledge and thank Vincent van Hees and colleagues for their work in developing this exceptionally useful package! 
