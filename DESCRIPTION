@@ -7,18 +7,19 @@ Maintainer: Daniel P. Windred <daniel.windred@monash.edu>
 Description: A tool to calculate the Sleep Regularity Index (SRI; Phillips et. 
     al., 2017), a summary of day-to-day overlap in sleep patterns for an 
     individual. The SRI can be calculated from raw accelerometer data in .csv
-    format, or sleep diary data. Accelerometer analysis makes use of the GGIR
-    package (van Hees et. al., 2015; Migueles et. al., 2019; 
+    format, or binary sleep data (e.g., sleep diaries). Accelerometer analysis 
+    makes use of the GGIR package (van Hees et. al., 2015; Migueles et. al., 2019; 
     <https://cran.r-project.org/web/packages/GGIR/GGIR.pdf>) to predict daily 
     sleep-wake timing and periods of sustained inactivity. GGIR outputs are used
-    to estimate broken and irregular sleep schedules, for accurate calculation 
+    to estimate fragmented sleep schedules, for accurate calculation 
     of SRI. 
 License: LGPL (>= 2.0, < 3) | file LICENSE 
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
-Imports: 
-    data.table
-Depends:
-    GGIR(== 2.0-0),
+Imports: data.table, 
+    parsedate
+Depends: 
+    R (>= 2.10),
+    GGIR (== 2.0-0),
     ggplot2
