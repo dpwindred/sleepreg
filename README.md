@@ -1,5 +1,14 @@
 # sleepreg
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
+### Use cases  
+This package has been designed for three main use cases:
+- Option A: Calculate SRI scores directly from accelerometer data
+- Option B: Calculate SRI scores from GGIR output
+- Option C: Calculate SRI scores from binary sleep-wake data
+
+Package instructions for each use case:
+![Alt text](https://github.com/dpwindred/sleepreg/blob/master/example_flowchart_2.jpg)
+
 ### Installation of ‘sleepreg’ package
 - Open R
 - If you’ve installed GGIR previously, remove any pre-existing version:
@@ -30,18 +39,7 @@ library(sleepreg)
 ```
 - During installation, R may ask whether you want to update to the newest version of GGIR - say no
 
-### Use cases  
-This package has been designed for three main use cases:
-- Option A: Calculate SRI scores directly from accelerometer data
-- Option B: Calculate SRI scores from GGIR output
-- Option C: Calculate SRI scores from binary sleep-wake data
-
-Package instructions for each use case:
-![Alt text](https://github.com/dpwindred/sleepreg/blob/master/example_flowchart_2.jpg)
-
-
 ### Functions
-
 
 - wrapper first
 - other main functions 
@@ -94,4 +92,4 @@ rollingWindowInd(t=c(),
 ```
 
 
-Our package relies upon GGIR (). We acknowledge and thank Vincent van Hees and colleagues for their work in developing this exceptionally useful package! 
+Our package relies upon GGIR (). We acknowledge and thank Vincent van Hees and colleagues for their work in developing this useful package! 
