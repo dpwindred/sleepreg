@@ -5,7 +5,7 @@
 - Use case B: Calculate SRI scores from GGIR output
 - Use case C: Calculate SRI scores from binary sleep-wake data
 
-![Alt text](https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow.tif)
+![Alt text](https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow.png)
 
 ### Installation of ‘sleepreg’ package
 - Open R
