@@ -49,7 +49,7 @@ SRI_from_GGIR(
 }
 \description{
 Uses sleep windows and sustained inactivity bouts from GGIR output to calculate Sleep Regularity Index scores. Accounts for
-multiphasic and broken sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside
+naps and fragmented sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside
 GGIR-defined sleep windows. Uses sustained inactivity bouts to exclude days where sleep onset and offset times are likely
 miscalculated. Runs across all "output_xxx" directories within 'outputdir', accounting for both multi-file and single-file GGIR output
 structures.

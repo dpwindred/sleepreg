@@ -17,9 +17,9 @@ rollingWindowInd(t = c(), window = c(), step = c())
 
 }
 \description{
-Fits rolling windows to time series and outputs start/end indices of each window, relative to time series.
+Fits rolling windows to time series and outputs start/end indices of each window.
 
-Note: keep time units consistent between t, window and step
+Note: keep time units consistent between t, window and step. All inputs required.
 }
 \examples{
 rollingWindowInd <- function(t=1:10000, window=3600, step=300)

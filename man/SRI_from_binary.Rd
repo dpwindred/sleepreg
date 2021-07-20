@@ -36,11 +36,11 @@ SRI_from_binary(
 
 }
 \description{
-Calculates SRI from a time series of binary sleep-wake data in .csv format. Column 1 contains values 1=sleep,
+Calculates SRI from a time series of binary sleep-wake summary (SWS) data in .csv format. Column 1 contains values 1=sleep,
 0=wake, NA=NA, end=recording end. Column 2 contains UNIX timestamps (origin=1970-01-01) identifying the start of each associated column 1 value.
 Final timestamp specifies recording end.
 
-Minimum required input: binarydir. Specify tz if required (default = "UTC").
+Minimum required input: 'binarydir'. Specify 'tz' if required (default = "UTC").
 }
 \examples{
 SRI_from_binary(binarydir = "C:/Users/dan_t/Documents/R/Biobank/SleepRegPackage/diarydata", tz="Portugal")

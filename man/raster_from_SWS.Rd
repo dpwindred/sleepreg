@@ -11,7 +11,7 @@ raster_from_SWS(SWS = c(), rasdir = c(), pptName = c(), tz = "UTC")
 Column 2 contains UNIX timestamps (origin=1970-01-01) identifying the start of each associated column 1 value.
 Final timestamp specifies recording end.}
 
-\item{rasdir}{Raster output directory, default created if not specified}
+\item{rasdir}{Raster output directory}
 
 \item{pptName}{Name of participant or file}
 
@@ -22,6 +22,8 @@ Final timestamp specifies recording end.}
 }
 \description{
 Extract raster plots from a binary sleep-wake time series (summarized as a reduced-form data frame)
+
+Minimum required inputs: 'SWS', 'rasdir', 'pptName'
 }
 \examples{
 raster_from_SWS(SWS = SWS, rasdir = "~/R/Biobank/SleepRegPackage/diarydata_output/raster_output", pptName = "ppt1")

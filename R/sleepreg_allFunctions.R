@@ -72,9 +72,9 @@ ds_accel_csv <- function(acceldir = c(),
 
 # ---------------------------------
 #' @title Get Rolling Window Indices
-#' @description Fits rolling windows to time series and outputs start/end indices of each window, relative to time series.
+#' @description Fits rolling windows to time series and outputs start/end indices of each window.
 #'
-#' Note: keep time units consistent between t, window and step
+#' Note: keep time units consistent between t, window and step. All inputs required.
 #'
 #' @param t Time series vector
 #' @param window Rolling window size
@@ -144,7 +144,7 @@ rollingWindowInd <- function(t=c(),
 #' evaluated based on surrounding 60 minute windows (centered at 15min), where standard deviation < 13mg and range < 50mg in at least two accelerometer axes
 #' is required for non-wear classification.
 #'
-#' Minimum required inputs: dsdir, rmc.col.time, rmc.col.acc
+#' Minimum required inputs: 'dsdir', 'rmc.col.time', 'rmc.col.acc'
 #'
 #' @param dsdir Directory for down-sampled files
 #' @param rmc.col.time Column of down-sampled .csv files containing timestamp
@@ -231,10 +231,12 @@ nonwear_detect <- function(dsdir=c(),
 #' @title Raster Plot from Sleep-Wake Summary Data
 #' @description Extract raster plots from a binary sleep-wake time series (summarized as a reduced-form data frame)
 #'
+#' Minimum required inputs: 'SWS', 'rasdir', 'pptName'
+#'
 #' @param SWS Sleep-wake summary data (2-column d.f.). Column 1 contains values 1=sleep, 0=wake, NA=NA, end=recording end.
 #' Column 2 contains UNIX timestamps (origin=1970-01-01) identifying the start of each associated column 1 value.
 #' Final timestamp specifies recording end.
-#' @param rasdir Raster output directory, default created if not specified
+#' @param rasdir Raster output directory
 #' @param pptName Name of participant or file
 #' @param tz Timezone (use OlsonNames() for a list of accepted timezone names)
 #'
@@ -339,7 +341,7 @@ raster_from_SWS <- function(SWS = c(),
 }
 
 # ---------------------------------
-#' @title Apply GGIR to Down-Sampled Accelerometer Files
+#' @title Apply GGIR to Down-Sampled Accelerometer Files (.csv format)
 #' @description Specifies parameters and implements GGIR (Migueles et. al., 2019) across all .csv accelerometer files (frequency = 1Hz)
 #' in 'acceldir', extracting sleep-wake predictions and sustained inactivity bouts.
 #'
@@ -529,7 +531,7 @@ GGIR_from_csv <- function(dsdir = c(),
 # ---------------------------------
 #' @title Calculate Sleep Regularity Index (SRI) from GGIR Output
 #' @description Uses sleep windows and sustained inactivity bouts from GGIR output to calculate Sleep Regularity Index scores. Accounts for
-#' multiphasic and broken sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside
+#' naps and fragmented sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside
 #' GGIR-defined sleep windows. Uses sustained inactivity bouts to exclude days where sleep onset and offset times are likely
 #' miscalculated. Runs across all "output_xxx" directories within 'outputdir', accounting for both multi-file and single-file GGIR output
 #' structures.
@@ -1318,7 +1320,7 @@ SRI_from_GGIR <- function(outputdir = c(),
 
 # ---------------------------------
 # Wrapper -------
-#' @title Calculate Sleep Regularity Index from .csv Accelerometer Data
+#' @title Calculate Sleep Regularity Index (SRI) from .csv Accelerometer Data
 #' @description A wrapper that allows for direct calculation of Sleep Regularity Index (SRI) scores from accelerometer data (.csv format).
 #'
 #' Runs four functions by default: (a) down-sampling data [ds_accel_csv], (b) extraction of non-wear data [nonwear_detect],
@@ -1338,7 +1340,7 @@ SRI_from_GGIR <- function(outputdir = c(),
 #' @param rmc.col.acc Columns of accelerometer data in down-sampled files
 #' @param sdThres Standard deviation threshold for non-wear classification, applied per window
 #' @param rngThres Range threshold for non-wear classification, applied per window
-#' @param tz Timezone (use OlsonNames() for a list of accepted timezone names
+#' @param tz Timezone (use OlsonNames() for a list of accepted timezone names)
 #' @param use.naps Specify whether 'naps' are included in SRI calculation
 #' @param use.WASO Specify whether 'wake after sleep onset' (WASO) periods are included in SRI calculation
 #' @param use.miscal Specify whether to filter out nights of 'miscalculated' sleep onset/offset timing
@@ -1449,11 +1451,11 @@ SRI_from_accel_csv <- function(acceldir = c(),
 
 # ----------------------------------------------------
 #' @title Calculate Sleep Regularity Index (SRI) from Binary Sleep-Wake Data
-#' @description Calculates SRI from a time series of binary sleep-wake data in .csv format. Column 1 contains values 1=sleep,
+#' @description Calculates SRI from a time series of binary sleep-wake summary (SWS) data in .csv format. Column 1 contains values 1=sleep,
 #' 0=wake, NA=NA, end=recording end. Column 2 contains UNIX timestamps (origin=1970-01-01) identifying the start of each associated column 1 value.
 #' Final timestamp specifies recording end.
 #'
-#' Minimum required input: binarydir. Specify tz if required (default = "UTC").
+#' Minimum required input: 'binarydir'. Specify 'tz' if required (default = "UTC").
 #'
 #' @param binarydir Directory containing sleep diary data
 #' @param tz Timezone (use OlsonNames() for a list of accepted timezone names)
@@ -1631,7 +1633,7 @@ SRI_from_binary <- function (binarydir = c(),
 #' and converts to individual sleep-wake summary (SWS) files. Specify whether output SWS
 #' files account for naps, WASO, and miscalculated nights.
 #'
-#' Minimum required input: SWVfile
+#' Minimum required input: 'SWVfile'
 #'
 #' @param SWVfile Location of sleep-wake vector file
 #' @param SWSdir Directory to write individual sleep-wake vector summary (SWS) files

@@ -2,7 +2,7 @@
 % Please edit documentation in R/sleepreg_allFunctions.R
 \name{SRI_from_accel_csv}
 \alias{SRI_from_accel_csv}
-\title{Calculate Sleep Regularity Index from .csv Accelerometer Data}
+\title{Calculate Sleep Regularity Index (SRI) from .csv Accelerometer Data}
 \usage{
 SRI_from_accel_csv(
   acceldir = c(),
@@ -52,7 +52,7 @@ SRI_from_accel_csv(
 
 \item{rngThres}{Range threshold for non-wear classification, applied per window}
 
-\item{tz}{Timezone (use OlsonNames() for a list of accepted timezone names}
+\item{tz}{Timezone (use OlsonNames() for a list of accepted timezone names)}
 
 \item{use.naps}{Specify whether 'naps' are included in SRI calculation}
 

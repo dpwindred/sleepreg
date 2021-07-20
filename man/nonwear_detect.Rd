@@ -34,7 +34,7 @@ Evaluates epoch-by-epoch non-wear status of accelerometer devices using method d
 evaluated based on surrounding 60 minute windows (centered at 15min), where standard deviation < 13mg and range < 50mg in at least two accelerometer axes
 is required for non-wear classification.
 
-Minimum required inputs: dsdir, rmc.col.time, rmc.col.acc
+Minimum required inputs: 'dsdir', 'rmc.col.time', 'rmc.col.acc'
 }
 \examples{
 nonwear_detect(dsdir = "~/R/Biobank/Light_Data/265_evenfreq_output/ds_output", rmc.col.time = 1, rmc.col.acc = c(2,3,4))

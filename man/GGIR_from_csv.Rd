@@ -2,7 +2,7 @@
 % Please edit documentation in R/sleepreg_allFunctions.R
 \name{GGIR_from_csv}
 \alias{GGIR_from_csv}
-\title{Apply GGIR to Down-Sampled Accelerometer Files}
+\title{Apply GGIR to Down-Sampled Accelerometer Files (.csv format)}
 \usage{
 GGIR_from_csv(
   dsdir = c(),
