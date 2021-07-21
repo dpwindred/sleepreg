@@ -1,6 +1,7 @@
 # sleepreg
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
-### Use cases  
+### Use cases
+This package gives users three options for SRI calculation:
 - Case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')  
 - Case B: Calculate SRI scores from GGIR output (see 'SRI_from_GGIR') 
 - Case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
@@ -8,8 +9,8 @@
 #### Instructions for each use case: 
 <img src="https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow10.PNG" width="837" height="580">
 
-### Installation of ‘sleepreg’ package
-'sleepreg' currently works using GGIR 2.0-0. If you have a different version of GGIR installed, remove and install 2.0-0:
+### Installation of ‘sleepreg’
+This package currently works using GGIR version 2.0-0. If you have a different version of GGIR installed, remove and install 2.0-0:
 ```
 remove.packages("GGIR")
 ```
