@@ -1,9 +1,9 @@
 # sleepreg
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
 ### Use cases  
-- Use case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')
-- Use case B: Calculate SRI scores from GGIR output (see 'SRI_from_GGIR') 
-- Use case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
+- Case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')  
+- Case B: Calculate SRI scores from GGIR output (see 'SRI_from_GGIR') 
+- Case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
 
 #### Instructions for each use case: 
 <img src="https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow10.PNG" width="837" height="580">
