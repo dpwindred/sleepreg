@@ -6,7 +6,7 @@
 - Use case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
 
 #### Instructions for each use case: 
-<img src="https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow7.PNG" width="830" height="650">
+<img src="https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow9.PNG" width="836" height="562">
 
 ### Installation of ‘sleepreg’ package
 - Open R
