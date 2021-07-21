@@ -15,11 +15,11 @@
 remove.packages("GGIR")
 ```
 - Close R
-- Delete the ‘GGIR’ folder in R/win-library directory
+- Delete the ‘GGIR’ folder on your local machine (e.g., R/win-library directory)
 - Re-open R
 - Download / install GGIR Version 2.0-0
   - Download ‘GGIR_2.0-0.tar.gz’ from https://cran.r-project.org/src/contrib/Archive/GGIR/
-  - Replace [your directory] with directory of the downloaded tar.gz file
+  - Use the following command, replacing [your directory] with directory of the downloaded tar.gz file
   ```
   install.packages(“[your directory]/GGIR_2.0-0.tar.gz", repos = NULL, type="source")
   ```
@@ -44,11 +44,11 @@ A wrapper that allows for calculation of Sleep Regularity Index (SRI) scores fro
 
 Runs four functions by default: (a) down-sampling data [ds_accel_csv], (b) extraction of non-wear data [nonwear_detect], (c) predicting sleep-wake timing using GGIR [GGIR_from_csv], and (d) calculating SRI after accounting for fragmented sleep patterns and naps [SRI_from_GGIR].
 
-Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
-
-For conversion from raw accelerometer data to .csv, see the following:
-- Geneactiv: https://www.activinsights.com/expertise/geneactiv/downloads-software/.
+Example of .csv accelerometer data is available under 'Data/accelerometerDataExample.csv'. For conversion from raw accelerometer data to .csv, see the following:
+- Geneactiv: https://www.activinsights.com/expertise/geneactiv/downloads-software/
 - Axivity: https://github.com/digitalinteraction/openmovement/wiki/AX3-GUI
+
+Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'
 ```
 SRI_from_accel_csv(acceldir = c(),
                    col.timestamp = c(),
@@ -100,10 +100,11 @@ SRI_from_accel_csv(acceldir = c(),
 #### [SRI_from_GGIR] Calculate Sleep Regularity Index (SRI) from GGIR Output
 Uses sleep windows and sustained inactivity bouts from GGIR output to calculate Sleep Regularity Index scores. Accounts for naps and fragmented sleep by identifying periods of 'wake' during GGIR-defined sleep windows and periods of 'napping' outside GGIR-defined sleep windows. Uses sustained inactivity bouts to exclude days where sleep onset and offset times are likely miscalculated. Runs across all "output_xxx" directories within 'outputdir', accounting for both multi-file and single-file GGIR output structures.
 
-Function outputs are the same as in [SRI_from_accel_csv].
+Function outputs are identical to those from 'SRI_from_accel_csv'.
+
+For information about GGIR, see https://cran.r-project.org/web/packages/GGIR/vignettes/GGIR.html
 
 Minimum required inputs: 'outputdir', 'nwdir' if use.customnonwear = TRUE (default)
-
 ```
 SRI_from_GGIR(outputdir = c(),
               alloutdir = c(),
@@ -121,7 +122,9 @@ SRI_from_GGIR(outputdir = c(),
 #### [SRI_from_binary] Calculate Sleep Regularity Index (SRI) from binary sleep-wake data
 Calculates SRI from a time series of binary sleep-wake summary (SWS) data in .csv format. Column 1 contains values 1=sleep, 0=wake, NA=NA, end=recording end. Column 2 contains UNIX timestamps (origin=1970-01-01) identifying the start of each associated column 1 value. Final timestamp specifies recording end.
 
-Minimum required input: 'binarydir'. Specify 'tz' if required (default = "UTC").
+For an example of required format (SWS), see 'Data/SWSdataExample.csv'
+
+Minimum required input: 'binarydir'. Specify 'tz' if required (default = "UTC")
 ```
 SRI_from_binary(binarydir = c(),
                 tz = "UTC",
