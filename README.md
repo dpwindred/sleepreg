@@ -1,10 +1,11 @@
 # sleepreg
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
 ### Use cases  
-- Use case A: Calculate SRI scores directly from accelerometer data
-- Use case B: Calculate SRI scores from GGIR output
-- Use case C: Calculate SRI scores from binary sleep-wake data
+- Use case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')
+- Use case B: Calculate SRI scores from GGIR output (see 'SRI_from_GGIR') 
+- Use case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
 
+#### Instructions for each use case: 
 <img src="https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow7.PNG" width="830" height="650">
 
 ### Installation of ‘sleepreg’ package
@@ -45,6 +46,9 @@ Runs four functions by default: (a) down-sampling data [ds_accel_csv], (b) extra
 
 Minimum required inputs: 'acceldir', 'col.timestamp', 'col.accel'.
 
+For conversion from raw accelerometer data to .csv, see the following:
+- Geneactiv: https://www.activinsights.com/expertise/geneactiv/downloads-software/.
+- Axivity: https://github.com/digitalinteraction/openmovement/wiki/AX3-GUI
 ```
 SRI_from_accel_csv(acceldir = c(),
                    col.timestamp = c(),
