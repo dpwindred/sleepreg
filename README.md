@@ -1,42 +1,31 @@
 # sleepreg
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
-### Use cases  
-- Use case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')
-- Use case B: Calculate SRI scores from GGIR output (see 'SRI_from_GGIR') 
-- Use case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
+### Use cases
+This package gives users three options for SRI calculation:
+- Case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')  
+- Case B: Calculate SRI scores from GGIR output (see 'SRI_from_GGIR') 
+- Case C: Calculate SRI scores from binary sleep-wake data (see 'SRI_from_binary')
 
 #### Instructions for each use case: 
 <img src="https://github.com/dpwindred/sleepreg/blob/master/SRI_package_flow10.PNG" width="837" height="580">
 
-### Installation of ‘sleepreg’ package
-- Open R
-- If you’ve installed GGIR previously, remove any pre-existing version:
+### Installation of ‘sleepreg’
+This package currently works using GGIR version 2.0-0. If you have a different version of GGIR installed, remove and install 2.0-0:
 ```
 remove.packages("GGIR")
 ```
-- Close R
-- Delete the ‘GGIR’ folder on your local machine (e.g., R/win-library directory)
-- Re-open R
-- Download / install GGIR Version 2.0-0
+  - Delete the ‘GGIR’ folder on your local machine (e.g., R/win-library directory) and restart R
   - Download ‘GGIR_2.0-0.tar.gz’ from https://cran.r-project.org/src/contrib/Archive/GGIR/
-  - Use the following command, replacing [your directory] with directory of the downloaded tar.gz file
+  - Install GGIR 2.0-0 (replace [your directory] with directory of the downloaded tar.gz file)
   ```
   install.packages(“[your directory]/GGIR_2.0-0.tar.gz", repos = NULL, type="source")
   ```
-- Install other dependencies
-```
-install.packages("ggplot")  
-install.packages("data.table")
-```
-- Install ‘sleepreg’ package’
+Install ‘sleepreg’ package’ (note: during installation R will ask if you want to update GGIR - say no)
 ```
 install.packages("devtools")
-library(devtools)
-auth_token <- "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"
-install_github(repo = "dpwindred/sleepreg", auth_token = auth_token)
+devtools::install_github("dpwindred/sleepreg")
 library(sleepreg)
 ```
-- During installation, R may ask whether you want to update to the newest version of GGIR - say no
 
 ### Functions
 #### [SRI_from_accel_csv] Calculate Sleep Regularity Index (SRI) from accelerometer data (.csv format)
