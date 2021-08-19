@@ -131,7 +131,7 @@ rollingWindowInd <- function(t=c(),
     enInd <- enInd[-length(enInd)]
   }
 
-  naBl <- (enInd - stInd) < .8*window | (enInd - stInd) > 1.2*window # For cases where windows are too long / short
+  naBl <- (t[enInd] - t[stInd]) < .8*window | (t[enInd] - t[stInd]) > 1.2*window # For cases where windows are too long / short
   stInd[naBl] <- NA; enInd[naBl] <- NA
 
   returnLi <- list(stInd, enInd)
