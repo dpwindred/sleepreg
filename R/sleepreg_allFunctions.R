@@ -295,7 +295,7 @@ raster_from_SWS <- function(SWS = c(),
     }
   }
 
-  sttso <- SWS$tmin[2] - SWS$tmin[1] # Time difference between recording start and first sleep onset
+  sttso <- SWS$tmin[min(which(SWS$trans == 1))] - SWS$tmin[1] # Time difference between recording start and first sleep onset
 
   rdf <- data.frame(grp = grp, t = slt, tabs = (slt - slt[1] + sttso), day = maxdays, tras = (slt - slt[1] + sttso))
   cuts <- seq(from=1440,by=1440,length.out=(maxdays-1))
@@ -305,8 +305,7 @@ raster_from_SWS <- function(SWS = c(),
   }
   rdf$trash <- rdf$tras/60 # In hours
 
-  as.POSIXct(SWS$tmin[1]*60,origin="1970-01-01",tz=tz)
-  rot <- as.POSIXct(SWS$tmin[1]*60,origin="1970-01-01",tz=tz)
+  rot <- as.POSIXct(SWS$t[1],origin="1970-01-01",tz=tz)
   oh <- round(as.numeric(substr(rot,12,13)) + as.numeric(substr(rot,15,16))/60, 1)
 
   rdf$tH <- rdf$trash + oh
