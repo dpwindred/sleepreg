@@ -307,7 +307,7 @@ raster_from_SWS <- function(SWS = c(),
 
   as.POSIXct(SWS$tmin[1]*60,origin="1970-01-01",tz=tz)
   rot <- as.POSIXct(SWS$tmin[1]*60,origin="1970-01-01",tz=tz)
-  oh <- as.numeric(substr(rot,12,13)) + as.numeric(substr(rot,15,16))/60
+  oh <- round(as.numeric(substr(rot,12,13)) + as.numeric(substr(rot,15,16))/60, 1)
 
   rdf$tH <- rdf$trash + oh
 
