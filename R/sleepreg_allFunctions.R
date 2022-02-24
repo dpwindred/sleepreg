@@ -1601,9 +1601,8 @@ SRI_from_binary <- function (binarydir = c(),
 
       # ---------------------------
       # -> Plot raster and save to file ----------
-      SWS <- appt[,c(1,3)]
       if (wr.raster == TRUE){
-        raster_from_SWS(SWS=SWS,
+        raster_from_SWS(SWS=appt.rd,
                         rasdir=rasdir,
                         pptName = studyname,
                         tz=tz)
@@ -1717,6 +1716,104 @@ SWS_from_SWV <- function(SWVfile = c(),
     }
 
     write.table(pptSWSdf, pptWrLoc, col.names=F, row.names = F, sep=",")
+  }
+}
+
+# ----------------------------------------------------
+#' @title Extract Individual SWS Files from Binary Sleep-Wake Files
+#' @description Takes binary sleep wake files (containing a timestamp column and a binary sleep-wake column)
+#' and converts to sleep-wake summary (SWS) format (file format used for input to SRI_from_binary function).
+#'
+#' Minimum required input: 'binarySWdir', 'tsCol', 'binaryCol'
+#'
+#' @param binarySWdir Location of binary sleep-wake .csv files
+#' @param tsCol Column containing timestamps
+#' @param binaryCol Column containing binary sleep-wake vector
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' SWS_from_binarySW(binarySWdir = "~/R/Biobank/binarySW", tsCol = 2, binaryCol = 1)
+
+SWS_from_binarySW <- function(binarySWdir = c(),
+                             tsCol = c(),
+                             binaryCol = c()
+                             ){
+  if (length(binarySWdir) == 0){
+    stop("Error: Specify location of binary sleep-wake file")
+  }
+  if (length(tsCol) == 0){
+    stop("Error: Specify column containing timestamps")
+  }
+  if (length(binaryCol) == 0){
+    stop("Error: Specify column containing binary sleep-wake data")
+  }
+
+  wrLoc <- paste0(binarySWdir, "/SWS_output")
+  if (!dir.exists(wrLoc)){
+    dir.create(wrLoc)
+  }
+
+  fls <- list.files(binarySWdir, full.names = TRUE, pattern = ".csv")
+  fls_name <- list.files(binarySWdir,pattern = ".csv")
+  i=1
+
+  if (length(fls) > 0){
+    for (fl in fls){
+      pptD <- read.csv(fl)
+
+      suppressWarnings(
+        binarySW <- as.numeric(pptD[,binaryCol])
+      )
+      suppressWarnings(
+        ts <- as.numeric(pptD[,tsCol])
+      )
+      ts1 <- pptD[1,tsCol] # Extract first timestamp
+
+      ts1df <- data.frame(trans = binarySW[1],t = ts1) # First timestamp
+      tsenddf <- data.frame(trans = binarySW[length(binarySW)],t = ts[length(ts)]) # Last timestamp
+
+      ont <- ts[which(diff(binarySW) == 1)+1] # Extract on times
+      offt <- ts[which(diff(binarySW) == -1)+1] # Extract off times
+
+      if (length(ont) == 0 | length(offt) == 0){
+        print(paste0("Error: No sleep-wake transitions are present, ", ppts[p]))
+        break
+      }
+
+      ondf <- data.frame(trans = 1, t = ont)
+      offdf <- data.frame(trans = 0,t = offt)
+
+      NAont <- ts[which(diff(is.na(binarySW)) == 1)+1] # Extract NA on times
+      if (length(NAont) > 0){
+        NAondf <- data.frame(trans = NA,t = NAont)
+      } else {
+        NAondf <- data.frame(trans = NA,t = NA)
+      }
+
+      NAofft <- ts[which(diff(is.na(binarySW)) == -1)+1] # Extract NA off times
+      if (length(NAofft) > 0){
+        NAoffdf <- data.frame(trans = 0,t = NAofft)
+        NAoffdf$trans[binarySW[which(diff(is.na(binarySW)) == -1)+1] == 1] <- 1
+      } else {
+        NAoffdf <- data.frame(trans = NA,t = NA)
+      }
+
+      catdf <- rbind(ts1df,ondf,offdf,NAondf,NAoffdf,tsenddf) # Concatenate
+      orcatdf <- catdf[order(catdf$t),] # Order by timestamp
+      orcatdf <- orcatdf[!is.na(orcatdf$t),] # Remove all timestamps == NA
+
+      if (orcatdf$t[length(orcatdf$t)] == orcatdf$t[length(orcatdf$t)-1]){ # If duplicate final values, remove last
+        orcatdf <- orcatdf[-nrow(orcatdf),]
+      }
+
+      write.table(orcatdf, paste0(wrLoc,"/",fls_name[i]), sep = ",",
+                  col.names = FALSE, row.names = FALSE)
+      i=i+1
+    }
+  } else {
+    print("Error: No .csv files in specified directory")
   }
 }
 
