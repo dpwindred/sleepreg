@@ -216,5 +216,21 @@ rollingWindowInd(t=c(),
 |window	|Rolling window size|
 |step	|Step size for sliding window along time series|
 
+#### [SWS_from_binarySW] Extract individual SWS files from binary sleep-wake files
+Takes binary sleep wake files (containing a timestamp column and a binary sleep-wake column)
+and converts to sleep-wake summary (SWS) format (file format used for input to SRI_from_binary function).
+
+Minimum required input: 'binarySWdir', 'tsCol', 'binaryCol'
+```
+SWS_from_binarySW <- function(binarySWdir = c(),
+                             tsCol = c(),
+                             binaryCol = c())
+```
+|Argument|Description|
+|---|---|
+|binarySWdir	|Location of binary sleep-wake .csv files|
+|tsCol	|Column containing timestamps|
+|binaryCol	|Column containing binary sleep-wake vector|
+
 ### Acknowledgements
 Our package is built around GGIR (van Hees et. al., 2018; Migueles et. al., 2019). We acknowledge and thank Vincent van Hees and colleagues for their work in developing this useful package! 
