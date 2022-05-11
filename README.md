@@ -2,6 +2,7 @@
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
 ### Citing 'sleepreg'
 To cite our package, please quote the version number and reference:
+
 Windred, D. P., Jones, S. E., Russell, A., Burns, A. C., Chan, P., Weedon, M. N., ... & Phillips, A. J. (2021). Objective assessment of sleep regularity in 60 000 UK Biobank participants using an open-source package. Sleep, 44(12), zsab254.
 
 ### Use cases
