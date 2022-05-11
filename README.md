@@ -1,5 +1,10 @@
 # sleepreg
 ## Calculate Sleep Regularity Index (SRI) scores from accelerometer and/or binary sleep-wake data
+### Citing 'sleepreg'
+To cite our package, please quote the version number and reference:
+
+Windred, D. P., Jones, S. E., Russell, A., Burns, A. C., Chan, P., Weedon, M. N., ... & Phillips, A. J. (2021). Objective assessment of sleep regularity in 60 000 UK Biobank participants using an open-source package. Sleep, 44(12), zsab254.
+
 ### Use cases
 This package gives users three options for SRI calculation:
 - Case A: Calculate SRI scores from accelerometer data (see 'SRI_from_accel_csv')  
@@ -215,6 +220,22 @@ rollingWindowInd(t=c(),
 |t	|Time series vector|
 |window	|Rolling window size|
 |step	|Step size for sliding window along time series|
+
+#### [SWS_from_binarySW] Extract individual SWS files from binary sleep-wake files
+Takes binary sleep wake files (containing a timestamp column and a binary sleep-wake column)
+and converts to sleep-wake summary (SWS) format (file format used for input to SRI_from_binary function).
+
+Minimum required input: 'binarySWdir', 'tsCol', 'binaryCol'
+```
+SWS_from_binarySW <- function(binarySWdir = c(),
+                             tsCol = c(),
+                             binaryCol = c())
+```
+|Argument|Description|
+|---|---|
+|binarySWdir	|Location of binary sleep-wake .csv files|
+|tsCol	|Column containing timestamps|
+|binaryCol	|Column containing binary sleep-wake vector|
 
 ### Acknowledgements
 Our package is built around GGIR (van Hees et. al., 2018; Migueles et. al., 2019). We acknowledge and thank Vincent van Hees and colleagues for their work in developing this useful package! 
