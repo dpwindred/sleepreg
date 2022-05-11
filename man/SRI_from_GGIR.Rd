@@ -16,7 +16,8 @@ SRI_from_GGIR(
   nonWearInGGIRsleep = FALSE,
   wr.SWV = TRUE,
   wr.raster = TRUE,
-  minSRIdays = 5
+  minSRIdays = 5,
+  SIdef = "T5A5"
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ SRI_from_GGIR(
 \item{wr.raster}{Specify whether sleep-wake raster plots are output to file}
 
 \item{minSRIdays}{Minimum number of days of overlapping data to calculate valid SRI scores}
+
+\item{SIdef}{Sustained inactivity definition (e.g., T5A5)}
 }
 \value{
 
@@ -60,8 +63,6 @@ Minimum required inputs: 'outputdir', 'nwdir' (if use.customnonwear = TRUE (defa
 }
 \examples{
 SRI_from_GGIR(outputdir = "~/R/Biobank/Light_Data/127_output/GGIR_output")
-SRI_from_GGIR(outputdir = "~/R/Biobank/GGIR_Version_Testing/105_evensample_output/GGIR_output",
-nwdir = "~/R/Biobank/GGIR_Version_Testing/105_evensample_output/nw_output")
 SRI_from_GGIR(outputdir = "~/R/Biobank/Light_Data/127_evenfreq_output/GGIR_output",
 nwdir = "~/R/Biobank/Light_Data/127_evenfreq_output/nw_output")
 }
