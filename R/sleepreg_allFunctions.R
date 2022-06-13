@@ -320,27 +320,63 @@ raster_from_SWS <- function(SWS = c(),
   abb_y <- rev(seq(from=max(rdf$day),to=1,by=-1))
 
   rdf$grp <- factor(rdf$grp, levels = c("Sleep", "NA"))
+  rdf$day2 <- abs(rdf$day - max(rdf$day) - 1)
 
-  rst <- ggplot(rdf,aes(x=tH, y=day, color = grp)) +
-    geom_point(size=6, shape="\u007C") +
-    scale_y_continuous(breaks=seq(from=max(rdf$day),to=1,by=-1),labels=abb_y) +
-    scale_x_continuous(breaks=seq(from=oh,to=(oh+24),by=4),limits=c(oh,(oh+24)),labels=abb_x) +
-    scale_color_manual(values=c("#000000", "#FFABAB")) +
-    xlab(paste0("Time (",tz,", h)")) +
-    ylab("Day") +
-    theme_classic() +
-    theme(text = element_text(size = 18),
-          axis.text = element_text(size = 16),
-          legend.title = element_blank()) +
-    guides(color = guide_legend(override.aes = list(shape = 15)))
+  if (max(rdf$day)<=50){
+    rst <- ggplot(rdf,aes(x=tH, y=day, color = grp)) +
+      geom_point(size=6, shape="\u007C") +
+      scale_y_continuous(breaks=seq(from=max(rdf$day),to=1,by=-1),labels=abb_y) +
+      scale_x_continuous(breaks=seq(from=oh,to=(oh+24),by=4),limits=c(oh,(oh+24)),labels=abb_x) +
+      scale_color_manual(values=c("#000000", "#FFABAB")) +
+      xlab(paste0("Time (",tz,", h)")) +
+      ylab("Day") +
+      theme_classic() +
+      theme(text = element_text(size = 18),
+            axis.text = element_text(size = 16),
+            legend.title = element_blank()) +
+      guides(color = guide_legend(override.aes = list(shape = 15)))
 
-  w <- 200 # Width in mm
-  h <- 7/12*w*(1+5/42*(maxdays-7)) # Height (depends on number of days of data)
+    w <- 200 # Width in mm
+    h <- 7/12*w*(1+5/42*(maxdays-7)) # Height (depends on number of days of data)
 
-  ggsave(paste0(rasdir,"/",pptName,".jpg"), device='jpeg',
-         plot=rst, width=w, height=h, units="mm", dpi=1400,
-         limitsize = FALSE)
-  print(paste0("Raster plot saved: ", pptName))
+    ggsave(paste0(rasdir,"/",pptName,".jpg"), device='jpeg',
+           plot=rst, width=w, height=h, units="mm", dpi=1400,
+           limitsize = FALSE)
+    print(paste0("Raster plot saved: ", pptName))
+
+  } else if (max(rdf$day)>50) {
+    plot_n <- ceiling(max(rdf$day)/50)
+    day_lims <- seq(from=0, to=plot_n*50, by=50)
+
+    for (nn in 1:plot_n){
+      rdf_50 <- rdf[rdf$day2 > day_lims[nn] & rdf$day2 <= day_lims[nn + 1],]
+      abb_y <- rev(seq(from=max(rdf_50$day2), to=min(rdf_50$day2),by=-1))
+      # abb_y <- rev(seq(from=max(rdf_50$day),to=1,by=-1))
+      maxdays <- max(rdf_50$day) - min(rdf_50$day) + 1
+
+      rst <- ggplot(rdf_50,aes(x=tH, y=day, color = grp)) +
+        geom_point(size=6, shape="\u007C") +
+        scale_y_continuous(breaks=seq(from=max(rdf_50$day),to=min(rdf_50$day),by=-1),labels=abb_y) +
+        # scale_y_continuous(breaks=seq(from=max(rdf_50$day),to=1,by=-1),labels=abb_y) +
+        scale_x_continuous(breaks=seq(from=oh,to=(oh+24),by=4),limits=c(oh,(oh+24)),labels=abb_x) +
+        scale_color_manual(values=c("#000000", "#FFABAB")) +
+        xlab(paste0("Time (",tz,", h)")) +
+        ylab("Day") +
+        theme_classic() +
+        theme(text = element_text(size = 18),
+              axis.text = element_text(size = 16),
+              legend.title = element_blank()) +
+        guides(color = guide_legend(override.aes = list(shape = 15)))
+
+      w <- 200 # Width in mm
+      h <- 7/12*w*(1+5/42*(maxdays-7)) # Height (depends on number of days of data)
+
+      ggsave(paste0(rasdir,"/",pptName,"_",nn,".jpg"), device='jpeg',
+             plot=rst, width=w, height=h, units="mm", dpi=1400,
+             limitsize = FALSE)
+      print(paste0("Raster plot saved: ", pptName, ", plot ", nn))
+    }
+  }
 }
 
 # ---------------------------------
@@ -1605,13 +1641,13 @@ SRI_from_binary <- function (binarydir = c(),
 
       for (j in 1:(length(setof12s)-1)){
         dayBl <- pptTV > setof12s[j] & pptTV <= setof12s[j+1] # Boolean referencing each day
-        if (sum(is.na(SWV[dayBl])) > 1440/24*exclNAhrs){
+        if (sum(is.na(SWV[dayBl])) > (60*60*24/10)*(exclNAhrs/24)){
           SWV[dayBl] <- NA
         }
       }
 
       # -> Calculate SRI ---------
-      SWV1 <- SWV[1:(length(SWV)-(24*60*6) )] # Remove last 24h
+      SWV1 <- SWV[1:(length(SWV)-(24*60*6))] # Remove last 24h
       SWV2 <- SWV[((24*60*6)+1):(length(SWV))] # Remove first 24h
       appt.SRI <- -100 + 200*(1-mean(abs(SWV2-SWV1),na.rm=TRUE)) # Calculate SRI from the two comparison vectors
 
