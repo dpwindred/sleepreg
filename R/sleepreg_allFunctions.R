@@ -1829,57 +1829,68 @@ SWS_from_binarySW <- function(binarySWdir = c(),
   i=1
 
   if (length(fls) > 0){
-    for (fl in fls){
-      pptD <- read.csv(fl)
+    for (i in 1:length(fls)){
+      tryCatch({
 
-      suppressWarnings(
-        binarySW <- as.numeric(pptD[,binaryCol])
-      )
-      suppressWarnings(
-        ts <- as.numeric(pptD[,tsCol])
-      )
-      ts1 <- pptD[1,tsCol] # Extract first timestamp
+        orcatdf <- data.frame(trans=NA, t=NA)
+        pptD <- read.csv(fls[i])
 
-      ts1df <- data.frame(trans = binarySW[1],t = ts1) # First timestamp
-      tsenddf <- data.frame(trans = binarySW[length(binarySW)],t = ts[length(ts)]) # Last timestamp
+        suppressWarnings(
+          binarySW <- as.numeric(pptD[,binaryCol])
+        )
+        suppressWarnings(
+          ts <- as.numeric(pptD[,tsCol])
+        )
+        ts1 <- pptD[1,tsCol] # Extract first timestamp
 
-      ont <- ts[which(diff(binarySW) == 1)+1] # Extract on times
-      offt <- ts[which(diff(binarySW) == -1)+1] # Extract off times
+        ts1df <- data.frame(trans = binarySW[1],t = ts1) # First timestamp
+        tsenddf <- data.frame(trans = binarySW[length(binarySW)],t = ts[length(ts)]) # Last timestamp
 
-      if (length(ont) == 0 | length(offt) == 0){
-        print(paste0("Error: No sleep-wake transitions are present, ", ppts[p]))
-        break
-      }
+        ont <- ts[which(diff(binarySW) == 1)+1] # Extract on times
+        offt <- ts[which(diff(binarySW) == -1)+1] # Extract off times
 
-      ondf <- data.frame(trans = 1, t = ont)
-      offdf <- data.frame(trans = 0,t = offt)
+        if (length(ont) == 0 | length(offt) == 0){
+          print(paste0("Error: No sleep-wake transitions are present, ", fls_name[i]))
+          write.table(orcatdf, paste0(wrLoc,"/",fls_name[i]), sep = ",",
+                      col.names = FALSE, row.names = FALSE)
+        } else {
 
-      NAont <- ts[which(diff(is.na(binarySW)) == 1)+1] # Extract NA on times
-      if (length(NAont) > 0){
-        NAondf <- data.frame(trans = NA,t = NAont)
-      } else {
-        NAondf <- data.frame(trans = NA,t = NA)
-      }
+          ondf <- data.frame(trans = 1, t = ont)
+          offdf <- data.frame(trans = 0,t = offt)
 
-      NAofft <- ts[which(diff(is.na(binarySW)) == -1)+1] # Extract NA off times
-      if (length(NAofft) > 0){
-        NAoffdf <- data.frame(trans = 0,t = NAofft)
-        NAoffdf$trans[binarySW[which(diff(is.na(binarySW)) == -1)+1] == 1] <- 1
-      } else {
-        NAoffdf <- data.frame(trans = NA,t = NA)
-      }
+          NAont <- ts[which(diff(is.na(binarySW)) == 1)+1] # Extract NA on times
+          if (length(NAont) > 0){
+            NAondf <- data.frame(trans = NA,t = NAont)
+          } else {
+            NAondf <- data.frame(trans = NA,t = NA)
+          }
 
-      catdf <- rbind(ts1df,ondf,offdf,NAondf,NAoffdf,tsenddf) # Concatenate
-      orcatdf <- catdf[order(catdf$t),] # Order by timestamp
-      orcatdf <- orcatdf[!is.na(orcatdf$t),] # Remove all timestamps == NA
+          NAofft <- ts[which(diff(is.na(binarySW)) == -1)+1] # Extract NA off times
+          if (length(NAofft) > 0){
+            NAoffdf <- data.frame(trans = 0,t = NAofft)
+            NAoffdf$trans[binarySW[which(diff(is.na(binarySW)) == -1)+1] == 1] <- 1
+          } else {
+            NAoffdf <- data.frame(trans = NA,t = NA)
+          }
 
-      if (orcatdf$t[length(orcatdf$t)] == orcatdf$t[length(orcatdf$t)-1]){ # If duplicate final values, remove last
-        orcatdf <- orcatdf[-nrow(orcatdf),]
-      }
+          catdf <- rbind(ts1df,ondf,offdf,NAondf,NAoffdf,tsenddf) # Concatenate
+          orcatdf <- catdf[order(catdf$t),] # Order by timestamp
+          orcatdf <- orcatdf[!is.na(orcatdf$t),] # Remove all timestamps == NA
 
-      write.table(orcatdf, paste0(wrLoc,"/",fls_name[i]), sep = ",",
-                  col.names = FALSE, row.names = FALSE)
-      i=i+1
+          if (orcatdf$t[length(orcatdf$t)] == orcatdf$t[length(orcatdf$t)-1]){ # If duplicate final values, remove last
+            orcatdf <- orcatdf[-nrow(orcatdf),]
+          }
+
+          write.table(orcatdf, paste0(wrLoc,"/",fls_name[i]), sep = ",",
+                      col.names = FALSE, row.names = FALSE)
+        }
+
+      }, error = function(e) {
+        print(e)
+      }, finally = {
+        next # Skip to next loop iteration
+      }) # Error-catch function
+
     }
   } else {
     print("Error: No .csv files in specified directory")
