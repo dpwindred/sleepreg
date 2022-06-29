@@ -1596,19 +1596,36 @@ SRI_from_binary <- function (binarydir = c(),
       studyname <- ppt_list[k] # Names of output folders = filename - directory
       appt.rd <- as.data.frame(data.table::fread(file=file_list[k])) # Read in data for this ppt
 
+      suppressWarnings(
+        appt.rd[,col.trans] <- as.numeric(appt.rd[,col.trans])
+      )
+
       # -> Exclude cases where file format is wrong, write error to file ----------
       if (appt.rd[nrow(appt.rd),2] == appt.rd[nrow(appt.rd)-1,2]){
         appt.rd <- appt.rd[-nrow(appt.rd),]
       }
 
-      if (ncol(appt.rd) != 2 | # If not 2 columns
-          length(unique(appt.rd[,1])) > 4 | # If more than 3 unique values in first column
-          !all((appt.rd[,2][2:(length(appt.rd[,2]))] - appt.rd[,2][1:(length(appt.rd[,2])-1)]) > 0) # If second column is not sequential
-      ){
+      if (ncol(appt.rd) != 2){ # If not 2 columns
         error_vec <- c(studyname,na_vec)
         write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
                     append = TRUE, row.names=FALSE) # Write Error to SRI.csv
-        print(paste("Incorrect input file format: ",studyname,sep=""))
+        print(paste0("Incorrect input file format: ",studyname,". Require only two columns of data."))
+        next
+      }
+
+      if (!all(diff(appt.rd[,2]) > 0)){ # If second column is not sequential
+        error_vec <- c(studyname,na_vec)
+        write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
+                    append = TRUE, row.names=FALSE) # Write Error to SRI.csv
+        print(paste0("Incorrect input file format: ",studyname,". Check timestamp column is ordered and non-repeating."))
+        next
+      }
+
+      if (sum(!((unique(appt.rd[,1])) %in% c(1,0,NA))) > 0){ # If values other than 1 or 0 present
+        error_vec <- c(studyname,na_vec)
+        write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
+                    append = TRUE, row.names=FALSE) # Write Error to SRI.csv
+        print(paste0("Incorrect input file format: ",studyname,". Check transition column contains only 1, 0, NA, or end."))
         next
       }
 
@@ -1826,7 +1843,6 @@ SWS_from_binarySW <- function(binarySWdir = c(),
 
   fls <- list.files(binarySWdir, full.names = TRUE, pattern = ".csv")
   fls_name <- list.files(binarySWdir,pattern = ".csv")
-  i=1
 
   if (length(fls) > 0){
     for (i in 1:length(fls)){
@@ -1841,6 +1857,24 @@ SWS_from_binarySW <- function(binarySWdir = c(),
         suppressWarnings(
           ts <- as.numeric(pptD[,tsCol])
         )
+
+        if (sum(unique(diff(ts)) <= 0) > 0){
+          print(paste0("Error: ", fls_name[i],". Timestamp column contains repeated or non-ordered values. This may arise due to daylight savings transition(s) contained within data converted from date-time to UNIX time."))
+          print(paste0("Check row: ", which(diff(ts)<=0)+1))
+          next
+        }
+
+        if (sum(!(unique(binarySW) %in% c(1,0,NA))) > 0){
+          print(paste0("Error: ", fls_name[i],". Binary column must contain only 1, 0, or NA."))
+          next
+        }
+
+        if (sum(unique(diff(ts)) < 1) > 0){ # If frequency is <1Hz
+          print(paste0("Error: ", fls_name[i],". Please group binary data into bins >= 1 second"))
+          next
+
+        }
+
         ts1 <- pptD[1,tsCol] # Extract first timestamp
 
         ts1df <- data.frame(trans = binarySW[1],t = ts1) # First timestamp
@@ -1883,6 +1917,7 @@ SWS_from_binarySW <- function(binarySWdir = c(),
 
           write.table(orcatdf, paste0(wrLoc,"/",fls_name[i]), sep = ",",
                       col.names = FALSE, row.names = FALSE)
+          print(paste0("SWS conversion complete: ", fls_name[i]))
         }
 
       }, error = function(e) {
