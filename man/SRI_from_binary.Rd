@@ -12,7 +12,8 @@ SRI_from_binary(
   col.timestamp = 2,
   overwr = FALSE,
   wr.raster = TRUE,
-  minSRIdays = 5
+  minSRIdays = 5,
+  exclNAhrs = 6
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ SRI_from_binary(
 \item{wr.raster}{Specify whether to output sleep-wake raster plots}
 
 \item{minSRIdays}{Minimum number of days of overlapping data to calculate valid SRI scores}
+
+\item{exclNAhrs}{Hours of NA per day above which entire day will be excluded (12noon-12noon)}
 }
 \value{
 

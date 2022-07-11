@@ -1533,6 +1533,7 @@ SRI_from_accel_csv <- function(acceldir = c(),
 #' @param overwr Specify whether to overwrite previous SRI data
 #' @param wr.raster Specify whether to output sleep-wake raster plots
 #' @param minSRIdays Minimum number of days of overlapping data to calculate valid SRI scores
+#' @param exclNAhrs Hours of NA per day above which entire day will be excluded (12noon-12noon)
 #'
 #' @return
 #' @export
@@ -1548,7 +1549,8 @@ SRI_from_binary <- function (binarydir = c(),
                              col.timestamp = 2,
                              overwr = FALSE,
                              wr.raster = TRUE,
-                             minSRIdays = 5
+                             minSRIdays = 5,
+                             exclNAhrs = 6
                              ){
   # ---------------------------------------
   # Specify directories ---------
@@ -1568,7 +1570,7 @@ SRI_from_binary <- function (binarydir = c(),
     }
   }
 
-  # Get list of sleep diary files ---------
+  # Get list of binary SWS files ---------
   file_list <- list.files(binarydir, pattern = "*.csv", full.names = TRUE)
   ppt_list <- list.files(binarydir, pattern = "*.csv")
 
@@ -1583,9 +1585,6 @@ SRI_from_binary <- function (binarydir = c(),
     write.table(t(SRIheader),SRIfile,sep=",", col.names=FALSE, row.names=FALSE) #--------------------------------------------------------<<
   }
   na_vec <- rep(NA,(length(SRIheader)-1)) # Define vector to fill row for error cases
-
-  # Parameters --------------
-  exclNAhrs <- 6 # Hours of NA (i.e., non-wear) data per day above which the entire day will be excluded
 
   # ---------------------------------------
   # Loop over files, extracting SWVs and SRI -------
@@ -1626,6 +1625,16 @@ SRI_from_binary <- function (binarydir = c(),
         write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
                     append = TRUE, row.names=FALSE) # Write Error to SRI.csv
         print(paste0("Incorrect input file format: ",studyname,". Check transition column contains only 1, 0, NA, or end."))
+        next
+      }
+
+      bi.tst <- appt.rd[c(-1,-nrow(appt.rd)),1]
+      bi.tst[is.na(bi.tst)] <- 10
+      if (sum(diff(bi.tst) == 0) > 0){ # If binary column is not alternating
+        error_vec <- c(studyname,na_vec)
+        write.table(t(error_vec),SRIfile, sep = ",", col.names = !file.exists(SRIfile),
+                    append = TRUE, row.names=FALSE) # Write Error to SRI.csv
+        print(paste0("Incorrect input file format: ",studyname,". Check input files are SWS (sleep-wake summary) format, with alternating 0, 1 & NA representing transitions. See SWS_from_binarySW()."))
         next
       }
 
@@ -1882,24 +1891,32 @@ SWS_from_binarySW <- function(binarySWdir = c(),
 
         ont <- ts[which(diff(binarySW) == 1)+1] # Extract on times
         offt <- ts[which(diff(binarySW) == -1)+1] # Extract off times
+        NAont <- ts[which(diff(is.na(binarySW)) == 1)+1] # Extract NA on times
+        NAofft <- ts[which(diff(is.na(binarySW)) == -1)+1] # Extract NA off times
 
-        if (length(ont) == 0 | length(offt) == 0){
-          print(paste0("Error: No sleep-wake transitions are present, ", fls_name[i]))
+        if ((length(ont) + length(offt) + length(NAont) + length(NAofft)) == 0){
+          print(paste0("Error: No transitions are present, ", fls_name[i]))
           write.table(orcatdf, paste0(wrLoc,"/",fls_name[i]), sep = ",",
                       col.names = FALSE, row.names = FALSE)
         } else {
+          if (length(ont) > 0){
+            ondf <- data.frame(trans = 1, t = ont)
+          } else {
+            ondf <- data.frame(trans = NA,t = NA)
+          }
 
-          ondf <- data.frame(trans = 1, t = ont)
-          offdf <- data.frame(trans = 0,t = offt)
+          if (length(offt) > 0){
+            offdf <- data.frame(trans = 0,t = offt)
+          } else {
+            offdf <- data.frame(trans = NA,t = NA)
+          }
 
-          NAont <- ts[which(diff(is.na(binarySW)) == 1)+1] # Extract NA on times
           if (length(NAont) > 0){
             NAondf <- data.frame(trans = NA,t = NAont)
           } else {
             NAondf <- data.frame(trans = NA,t = NA)
           }
 
-          NAofft <- ts[which(diff(is.na(binarySW)) == -1)+1] # Extract NA off times
           if (length(NAofft) > 0){
             NAoffdf <- data.frame(trans = 0,t = NAofft)
             NAoffdf$trans[binarySW[which(diff(is.na(binarySW)) == -1)+1] == 1] <- 1
