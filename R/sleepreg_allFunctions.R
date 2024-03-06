@@ -1656,6 +1656,9 @@ SRI_from_binary <- function (binarydir = c(),
       originTs <- appt$t.rnd[1]
       dt <- as.POSIXct(appt$t.rnd[1],origin="1970-01-01",tz=tz)
       originclock <- as.numeric(substr(dt,12,13)) + (as.numeric(substr(dt,15,16)))/60 + (as.numeric(substr(dt,18,19)))/60/60 # 24h clock time of first timestamp
+      if (is.na(originclock) & nchar(dt)==10){
+        originclock <- 0
+        }
       maxdays <- ceiling((range(appt$t.rnd)[2] - range(appt$t.rnd)[1])/60/60/24) # Max days of data this ppt will have
       pptTV <- seq(from=originTs, by=10, length.out=length(SWV))
 
