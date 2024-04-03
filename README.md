@@ -116,6 +116,8 @@ SRI_from_GGIR(outputdir = c(),
 #### [SRI_from_binary] Calculate Sleep Regularity Index (SRI) from binary sleep-wake data
 Calculates SRI from a time series of binary sleep-wake summary (SWS) data in .csv format. Column 1 contains values 1=sleep, 0=wake, NA=NA, end=recording end. Column 2 contains UNIX timestamps (origin=1970-01-01) identifying the start of each associated column 1 value. Final timestamp specifies recording end.
 
+Please note that the sleep-wake summary format only denotes transitions into subsequent periods of sleep, wake, or NA. This format is not an epoch-by-epoch sleep-wake time series. 
+
 For an example of required format (SWS), see 'Data/SWSdataExample.csv'
 
 Minimum required input: 'binarydir'. Specify 'tz' if required (default = "UTC")
